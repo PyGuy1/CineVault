@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CineVault — Your personal movie & series watchlist">
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CineVault</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- APP LOADER -->
+<div id="app-loader">
+  <div class="loader-logo">🎬 CineVault</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <p style="color:var(--text-muted);font-size:0.8rem;">Loading your watchlist…</p>
+</div>
+
+<!-- APP WRAPPER -->
+<div class="app-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎬</div>
+      <span class="logo-text">CineVault</span>
+    </div>
+
+    <div class="nav-section-label">Main</div>
+    <nav role="navigation">
+      <div class="nav-item active" data-nav="dashboard" role="button" tabindex="0">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-item" data-nav="watchlist" role="button" tabindex="0">
+        <span class="nav-icon">🎞️</span>
+        <span class="nav-label">My Watchlist</span>
+      </div>
+      <div class="nav-item" data-nav="search" role="button" tabindex="0">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Search & Add</span>
+      </div>
+      <div class="nav-section-label">More</div>
+      <div class="nav-item" data-nav="stats" role="button" tabindex="0">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Statistics</span>
+      </div>
+      <div class="nav-item" data-nav="tools" role="button" tabindex="0">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Tools & Backup</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button id="install-btn">📲 Install App</button>
+      <div class="sidebar-footer">
+        Powered by <a href="#" style="pointer-events:none">PyGuy</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="icon-btn" id="mobile-nav-toggle" aria-label="Toggle navigation">☰</button>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="cv-btn btn-primary" id="add-btn" style="padding:8px 16px;font-size:0.82rem;">
+          ＋ Add
+        </button>
+        <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">
+          <span class="theme-icon">☀️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- ===== DASHBOARD SECTION ===== -->
+      <section class="section active" id="section-dashboard">
+        <div class="dash-header">
+          <div class="dash-greeting">
+            <h1>Your Watchlist 🎬</h1>
+            <p id="dash-subtitle">Track your movies & series journey</p>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card glass-panel">
+            <div class="stat-icon">📽️</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card glass-panel">
+            <div class="stat-icon">🎬</div>
+            <div class="stat-value" id="stat-movies">0</div>
+            <div class="stat-label">Movies</div>
+          </div>
+          <div class="stat-card glass-panel">
+            <div class="stat-icon">📺</div>
+            <div class="stat-value" id="stat-series">0</div>
+            <div class="stat-label">Series</div>
+          </div>
+          <div class="stat-card glass-panel">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="stat-watched">0</div>
+            <div class="stat-label">Watched</div>
+          </div>
+          <div class="stat-card glass-panel">
+            <div class="stat-icon">🕐</div>
+            <div class="stat-value" id="stat-unwatched">0</div>
+            <div class="stat-label">Unwatched</div>
+          </div>
+          <div class="stat-card glass-panel">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="stat-favorites">0</div>
+            <div class="stat-label">Favorites</div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+          <h3>
+            <span>Watch Progress</span>
+            <span id="progress-pct">0%</span>
+          </h3>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="dash-bottom-row">
+          <!-- Search bar -->
+          <div class="dash-search-wrap">
+            <div class="search-bar-wrap">
+              <span class="search-icon-inline">🔍</span>
+              <input type="search" class="glass-search" id="dash-search" placeholder="Quick search your watchlist…">
+            </div>
+
+            <!-- Quick filters on dashboard -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="movies">Movies</button>
+              <button class="filter-btn" data-filter="series">Series</button>
+              <button class="filter-btn" data-filter="watched">Watched</button>
+              <button class="filter-btn" data-filter="unwatched">Unwatched</button>
+              <button class="filter-btn" data-filter="favorites">⭐ Favorites</button>
+            </div>
+
+            <!-- Mini watchlist grid -->
+            <div id="watchlist-grid" class="watchlist-container view-grid"></div>
+          </div>
+
+          <!-- Recently Added -->
+          <div class="recent-section glass-panel">
+            <h3>Recently Added</h3>
+            <div id="recent-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== WATCHLIST SECTION ===== -->
+      <section class="section" id="section-watchlist">
+        <!-- Toolbar -->
+        <div class="watchlist-toolbar">
+          <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="movies">🎬 Movies</button>
+            <button class="filter-btn" data-filter="series">📺 Series</button>
+            <button class="filter-btn" data-filter="watched">✓ Watched</button>
+            <button class="filter-btn" data-filter="unwatched">○ Unwatched</button>
+            <button class="filter-btn" data-filter="favorites">⭐ Favorites</button>
+          </div>
+          <div class="toolbar-right">
+            <select class="glass-select" id="sort-select">
+              <option value="dateAdded">Sort: Date Added</option>
+              <option value="name">Sort: Name A-Z</option>
+              <option value="rating">Sort: Rating</option>
+              <option value="year">Sort: Year</option>
+            </select>
+            <div class="view-toggle">
+              <button class="view-btn active" data-view="grid" title="Grid view">⊞</button>
+              <button class="view-btn" data-view="list" title="List view">☰</button>
+            </div>
+            <span class="results-info" id="results-count">0 items</span>
+          </div>
+        </div>
+
+        <!-- Category filter -->
+        <div class="category-filter" id="category-filter"></div>
+
+        <!-- Watchlist Grid -->
+        <div id="watchlist-grid-main" class="watchlist-container view-grid"></div>
+      </section>
+
+      <!-- ===== SEARCH SECTION ===== -->
+      <section class="section" id="section-search">
+        <div class="search-header">
+          <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:8px;">Find Movies &amp; Series</h2>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:20px;">Search millions of titles and add them to your watchlist</p>
+          <div class="search-input-wrap">
+            <input type="search" id="search-input" placeholder="Search for a movie or series…" autocomplete="off">
+            <button class="search-submit" id="search-submit-btn" aria-label="Search">🔍</button>
+          </div>
+          <p style="color:var(--text-muted);font-size:0.75rem;margin-top:8px;">Powered by OMDb API · or try: Dark Knight, Breaking Bad, Inception</p>
+        </div>
+
+        <div id="search-results"></div>
+        <div id="search-pagination"></div>
+      </section>
+
+      <!-- ===== STATS SECTION ===== -->
+      <section class="section" id="section-stats">
+        <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px;">📊 Your Statistics</h2>
+        <div id="stats-detail"></div>
+      </section>
+
+      <!-- ===== TOOLS SECTION ===== -->
+      <section class="section" id="section-tools">
+        <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px;">⚙️ Tools &amp; Backup</h2>
+
+        <div class="settings-grid">
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">📤</div>
+            <h3>Export Watchlist</h3>
+            <p>Download your entire watchlist as a JSON backup file you can import later.</p>
+            <button class="cv-btn btn-primary" id="export-btn">Export JSON</button>
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">📥</div>
+            <h3>Import Watchlist</h3>
+            <p>Restore a previously exported watchlist JSON file.</p>
+            <button class="cv-btn btn-ghost" id="import-btn">Import JSON</button>
+            <input type="file" id="import-file" accept=".json" style="display:none">
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">💾</div>
+            <h3>Backup Now</h3>
+            <p>Create a timestamped backup of your complete watchlist data.</p>
+            <button class="cv-btn btn-save" id="backup-btn">Create Backup</button>
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">🎲</div>
+            <h3>Random Picker</h3>
+            <p>Can't decide what to watch? Let CineVault pick an unwatched title for you!</p>
+            <button class="cv-btn btn-fav" id="random-btn">Pick Random 🎲</button>
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">🎨</div>
+            <h3>Theme</h3>
+            <p>Switch between dark and light mode with a smooth animated transition.</p>
+            <button class="cv-btn btn-ghost" id="theme-toggle-2" onclick="document.getElementById('theme-toggle').click()">Toggle Theme</button>
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">🗑️</div>
+            <h3>Clear Watchlist</h3>
+            <p>Permanently remove all items from your watchlist. This cannot be undone.</p>
+            <button class="cv-btn btn-danger" id="clear-all-btn">Clear All</button>
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">⌨️</div>
+            <h3>Keyboard Shortcuts</h3>
+            <p>Press <kbd>?</kbd> anywhere to see available keyboard shortcuts for power users.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+              <kbd>D</kbd><kbd>W</kbd><kbd>S</kbd><kbd>T</kbd><kbd>A</kbd><kbd>R</kbd><kbd>E</kbd>
+            </div>
+          </div>
+
+          <div class="settings-card glass-panel">
+            <div class="settings-card-icon">📲</div>
+            <h3>Install App</h3>
+            <p>Install CineVault as a PWA on your device for offline access and app-like experience.</p>
+            <button class="cv-btn btn-primary" id="install-btn-2" style="display:none" onclick="document.getElementById('install-btn').click()">Install</button>
+            <p id="pwa-note" style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">Already installed or not available on this browser.</p>
+          </div>
+        </div>
+      </section>
+
+    </main><!-- /content-area -->
+
+    <!-- FOOTER -->
+    <footer style="text-align:center;padding:16px 24px;color:var(--text-muted);font-size:0.75rem;border-top:1px solid var(--glass-border);">
+      Powered by <strong style="color:var(--accent)">PyGuy</strong> · CineVault v1.0
+    </footer>
+
+  </div><!-- /main-content -->
+</div><!-- /app-wrapper -->
+
+<!-- CONTEXT MENU -->
+<div class="context-menu glass-panel" id="context-menu">
+  <div class="ctx-header" id="ctx-title">Item</div>
+  <button class="ctx-item" id="ctx-watch">✓ Mark as Watched</button>
+  <button class="ctx-item" id="ctx-fav">⭐ Toggle Favorite</button>
+  <button class="ctx-item ctx-danger" id="ctx-remove">🗑️ Remove</button>
+</div>
+
+<script type="module" src="./app.js"></script>
+<script>
+  // Patch watchlist section to use its own grid
+  document.addEventListener("DOMContentLoaded", () => {
+    // Section navigation also update topbar title
+    const titles = { dashboard: "Dashboard", watchlist: "My Watchlist", search: "Search & Add", stats: "Statistics", tools: "Tools & Backup" };
+    document.querySelectorAll("[data-nav]").forEach(el => {
+      el.addEventListener("click", () => {
+        const t = document.getElementById("topbar-title");
+        if (t) t.textContent = titles[el.dataset.nav] || "CineVault";
+      });
+    });
+  });
+
+  // Redirect watchlist section to use its own grid
+  // (app.js will detect the section and use the appropriate container)
+  window.addEventListener("load", () => {
+    // PWA install button visibility
+    const installBtn2 = document.getElementById("install-btn-2");
+    const pwaNote = document.getElementById("pwa-note");
+    window.addEventListener("beforeinstallprompt", () => {
+      if (installBtn2) installBtn2.style.display = "flex";
+      if (pwaNote) pwaNote.style.display = "none";
+    });
+  });
+</script>
+</body>
+</html>
