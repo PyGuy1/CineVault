@@ -31,6 +31,11 @@ function updateThemeButton(theme) {
   const btn = document.getElementById("theme-toggle");
   if (!btn) return;
   const icon = btn.querySelector(".theme-icon");
-  if (icon) icon.textContent = theme === "dark" ? "☀️" : "🌙";
+  if (icon) {
+    icon.innerHTML = theme === "dark"
+      ? `<i data-lucide="sun"></i>`
+      : `<i data-lucide="moon"></i>`;
+    if (window.cvInitIcons) window.cvInitIcons();
+  }
   btn.setAttribute("title", theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode");
 }

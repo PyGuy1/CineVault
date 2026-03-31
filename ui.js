@@ -2,6 +2,20 @@
 import { showDetailPopup, showToast, closePopup } from "./popup.js";
 import { updateItem, deleteItem } from "./db.js";
 
+// Inline SVGs for dynamically created elements
+const UI_IC = {
+  film:       `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`,
+  filmSm:     `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`,
+  starFill:   `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  check:      `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  undo:       `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>`,
+  heartFill:  `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  heart:      `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  x:          `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  plus:       `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  checkAdded: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+};
+
 let viewMode = "grid";
 let dragSrcIndex = null;
 
@@ -37,9 +51,9 @@ export function renderList(items, container, onItemsChange) {
   if (items.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">🎬</div>
+        <div class="empty-icon" style="color:var(--text-muted);opacity:0.4;">${UI_IC.film}</div>
         <h3>Your watchlist is empty</h3>
-        <p>Search for movies & series or add them manually</p>
+        <p>Search for movies &amp; series or add them manually</p>
       </div>
     `;
     return;
@@ -72,30 +86,30 @@ function createCard(item, index, onItemsChange) {
 
   card.innerHTML = `
     <div class="card-poster" style="${posterStyle}">
-      ${!item.poster ? '<div class="card-poster-fallback">🎬</div>' : ""}
+      ${!item.poster ? `<div class="card-poster-fallback" style="color:var(--text-muted);opacity:0.4;">${UI_IC.film}</div>` : ""}
       <div class="card-overlay">
         <span class="card-type-badge badge-${item.type}">${item.type}</span>
-        ${item.favorite ? '<span class="card-fav-badge">⭐</span>' : ""}
-        ${item.watched ? '<span class="card-watched-badge">✓</span>' : ""}
+        ${item.favorite ? `<span class="card-fav-badge">${UI_IC.heartFill}</span>` : ""}
+        ${item.watched ? `<span class="card-watched-badge">${UI_IC.check}</span>` : ""}
       </div>
     </div>
     <div class="card-body">
       <h3 class="card-title" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</h3>
       <div class="card-meta">
         <span class="card-year">${item.year || "N/A"}</span>
-        <span class="card-rating">⭐ ${item.rating || "N/A"}</span>
+        <span class="card-rating">${UI_IC.starFill} ${item.rating || "N/A"}</span>
       </div>
       ${item.category ? `<span class="card-category">${item.category}</span>` : ""}
       <p class="card-desc">${truncate(item.description || "", 80)}</p>
     </div>
     <div class="card-quick-actions">
-      <button class="quick-btn qb-watch" title="${item.watched ? "Unmark" : "Mark watched"}">
-        ${item.watched ? "↩" : "✓"}
+      <button class="quick-btn qb-watch" title="${item.watched ? "Unmark watched" : "Mark watched"}">
+        ${item.watched ? UI_IC.undo : UI_IC.check}
       </button>
-      <button class="quick-btn qb-fav" title="${item.favorite ? "Remove favorite" : "Favorite"}">
-        ${item.favorite ? "💛" : "♡"}
+      <button class="quick-btn qb-fav" title="${item.favorite ? "Remove favorite" : "Add favorite"}">
+        ${item.favorite ? UI_IC.heartFill : UI_IC.heart}
       </button>
-      <button class="quick-btn qb-del" title="Remove">✕</button>
+      <button class="quick-btn qb-del" title="Remove">${UI_IC.x}</button>
     </div>
   `;
 
@@ -109,7 +123,7 @@ function createCard(item, index, onItemsChange) {
     item.watched = !item.watched;
     await updateItem(item);
     if (onItemsChange) onItemsChange();
-    showToast(item.watched ? "Marked as watched ✓" : "Marked as unwatched", "success");
+    showToast(item.watched ? "Marked as watched" : "Marked as unwatched", "success");
   };
 
   card.querySelector(".qb-fav").onclick = async (e) => {
@@ -117,7 +131,7 @@ function createCard(item, index, onItemsChange) {
     item.favorite = !item.favorite;
     await updateItem(item);
     if (onItemsChange) onItemsChange();
-    showToast(item.favorite ? "Added to favorites ⭐" : "Removed from favorites", "info");
+    showToast(item.favorite ? "Added to favorites" : "Removed from favorites", "info");
   };
 
   card.querySelector(".qb-del").onclick = async (e) => {
@@ -156,14 +170,14 @@ function openDetail(item, onItemsChange) {
       await updateItem(item);
       closePopup();
       if (onItemsChange) onItemsChange();
-      showToast(item.watched ? "Marked as watched ✓" : "Marked as unwatched", "success");
+      showToast(item.watched ? "Marked as watched" : "Marked as unwatched", "success");
     },
     onToggleFav: async () => {
       item.favorite = !item.favorite;
       await updateItem(item);
       closePopup();
       if (onItemsChange) onItemsChange();
-      showToast(item.favorite ? "Added to favorites ⭐" : "Removed from favorites", "info");
+      showToast(item.favorite ? "Added to favorites" : "Removed from favorites", "info");
     },
     onSaveNotes: async (notes) => {
       item.notes = notes;
@@ -173,7 +187,7 @@ function openDetail(item, onItemsChange) {
     onRate: async (rating) => {
       item.userRating = rating;
       await updateItem(item);
-      showToast(`Rated ${rating}/5 ⭐`, "success");
+      showToast(`Rated ${rating}/5`, "success");
     },
     onEpisodeUpdate: async (count) => {
       item.episodesWatched = count;
@@ -201,7 +215,7 @@ export function renderSearchResults(results, container, onAdd, existingIds) {
       <div class="sr-poster">
         ${result.Poster && result.Poster !== "N/A"
           ? `<img src="${result.Poster}" alt="${escapeHtml(result.Title)}" loading="lazy" onerror="this.style.display='none'">`
-          : `<div class="sr-poster-fallback">🎬</div>`
+          : `<div class="sr-poster-fallback" style="color:var(--text-muted);opacity:0.5;">${UI_IC.filmSm}</div>`
         }
       </div>
       <div class="sr-info">
@@ -211,13 +225,13 @@ export function renderSearchResults(results, container, onAdd, existingIds) {
         </div>
         <div class="sr-meta">
           <span>${result.Year || "N/A"}</span>
-          ${result.imdbRating && result.imdbRating !== "N/A" ? `<span>⭐ ${result.imdbRating}</span>` : ""}
-          ${result.Genre ? `<span>🏷 ${result.Genre.split(",")[0]}</span>` : ""}
+          ${result.imdbRating && result.imdbRating !== "N/A" ? `<span>${UI_IC.starFill} ${result.imdbRating}</span>` : ""}
+          ${result.Genre ? `<span>${result.Genre.split(",")[0]}</span>` : ""}
         </div>
         <p class="sr-plot">${truncate(result.Plot || "", 120)}</p>
       </div>
-      <button class="cv-btn ${alreadyAdded ? "btn-ghost" : "btn-primary"} sr-add-btn" ${alreadyAdded ? "disabled" : ""}>
-        ${alreadyAdded ? "✓ Added" : "+ Add"}
+      <button class="cv-btn ${alreadyAdded ? "btn-ghost" : "btn-primary"} sr-add-btn" ${alreadyAdded ? "disabled" : ""} style="gap:6px;flex-shrink:0;">
+        ${alreadyAdded ? `${UI_IC.checkAdded} Added` : `${UI_IC.plus} Add`}
       </button>
     `;
     if (!alreadyAdded) {
@@ -252,7 +266,7 @@ export function renderStats(items) {
     <div class="stats-grid">
       <div class="stat-detail-card glass-panel">
         <div class="sdc-label">Avg Your Rating</div>
-        <div class="sdc-value">${avgRating}${ratedCount > 0 ? " ⭐" : ""}</div>
+        <div class="sdc-value">${avgRating}${ratedCount > 0 ? ` ${UI_IC.starFill}` : ""}</div>
       </div>
       <div class="stat-detail-card glass-panel">
         <div class="sdc-label">Top Category</div>

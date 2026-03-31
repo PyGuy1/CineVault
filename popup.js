@@ -1,5 +1,28 @@
 // CineVault - Popup & Modal System
 
+// Inline Lucide SVG helpers (no dependency on lucide lib for dynamic content)
+const IC = {
+  x:          `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  star:       `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  starEmpty:  `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  clock:      `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  tag:        `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
+  film:       `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`,
+  check:      `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  eyeOff:     `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+  heartFill:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  heart:      `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>`,
+  notepad:    `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
+  trash:      `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>`,
+  warning:    `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  infoCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  checkCircle:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  xCircle:    `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  alertTri:   `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  save:       `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  plus:       `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+};
+
 let activePopup = null;
 
 export function showPopup(config) {
@@ -10,7 +33,7 @@ export function showPopup(config) {
     <div class="cv-modal glass-panel" role="dialog" aria-modal="true">
       <div class="cv-modal-header">
         <h2 class="cv-modal-title">${config.title || ""}</h2>
-        <button class="cv-modal-close" id="modal-close-btn" aria-label="Close">✕</button>
+        <button class="cv-modal-close" id="modal-close-btn" aria-label="Close">${IC.x}</button>
       </div>
       <div class="cv-modal-body">${config.body || ""}</div>
       ${config.footer ? `<div class="cv-modal-footer">${config.footer}</div>` : ""}
@@ -44,7 +67,7 @@ export function showDetailPopup(item, callbacks) {
   const posterHtml = item.poster
     ? `<img src="${item.poster}" alt="${item.name}" class="popup-poster" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
     : "";
-  const posterFallback = `<div class="popup-poster-fallback" style="${item.poster ? "display:none" : ""}">🎬</div>`;
+  const posterFallback = `<div class="popup-poster-fallback" style="${item.poster ? "display:none" : ""}">${IC.film}</div>`;
 
   const body = `
     <div class="popup-detail">
@@ -52,15 +75,15 @@ export function showDetailPopup(item, callbacks) {
         ${posterHtml}${posterFallback}
         <div class="popup-badges">
           <span class="badge badge-type badge-${item.type}">${item.type}</span>
-          ${item.favorite ? '<span class="badge badge-fav">⭐ Favorite</span>' : ""}
-          <span class="badge badge-${item.watched ? "watched" : "unwatched"}">${item.watched ? "✓ Watched" : "○ Unwatched"}</span>
+          ${item.favorite ? `<span class="badge badge-fav">${IC.star} Favorite</span>` : ""}
+          <span class="badge badge-${item.watched ? "watched" : "unwatched"}">${item.watched ? `${IC.check} Watched` : "Unwatched"}</span>
         </div>
       </div>
       <div class="popup-info">
         <div class="popup-meta">
           <span class="popup-year">${item.year || "N/A"}</span>
-          ${item.runtime ? `<span class="popup-runtime">⏱ ${item.runtime}</span>` : ""}
-          ${item.genre ? `<span class="popup-genre">🏷 ${item.genre}</span>` : ""}
+          ${item.runtime ? `<span class="popup-runtime">${IC.clock} ${item.runtime}</span>` : ""}
+          ${item.genre ? `<span class="popup-genre">${IC.tag} ${item.genre}</span>` : ""}
         </div>
         <div class="popup-rating-row">
           <span class="imdb-badge">IMDb ${item.rating || "N/A"}</span>
@@ -72,8 +95,14 @@ export function showDetailPopup(item, callbacks) {
         <p class="popup-desc">${item.description || "No description available."}</p>
         ${item.director ? `<p class="popup-meta-line"><strong>Director:</strong> ${item.director}</p>` : ""}
         ${item.actors ? `<p class="popup-meta-line"><strong>Cast:</strong> ${item.actors}</p>` : ""}
+        ${item.type === "series" && item.totalSeasons ? `
+          <div class="series-progress-wrap">
+            <label>Episodes watched: <strong id="ep-count">${item.episodesWatched || 0}</strong></label>
+            <input type="range" id="ep-slider" min="0" max="${item.totalSeasons * 10}" value="${item.episodesWatched || 0}" class="ep-slider">
+          </div>
+        ` : ""}
         <div class="notes-wrap">
-          <label for="item-notes">📝 Notes</label>
+          <label for="item-notes">${IC.notepad} Notes</label>
           <textarea id="item-notes" class="glass-input" placeholder="Add your notes here..." rows="3">${item.notes || ""}</textarea>
         </div>
         <p class="popup-date">Added: ${formatDate(item.dateAdded)}</p>
@@ -83,10 +112,18 @@ export function showDetailPopup(item, callbacks) {
 
   const footer = `
     <div class="popup-actions">
-      <button class="cv-btn btn-primary" id="toggle-watched">${item.watched ? "Mark Unwatched" : "Mark Watched"}</button>
-      <button class="cv-btn btn-fav" id="toggle-fav">${item.favorite ? "Remove Favorite" : "Add Favorite"}</button>
-      <button class="cv-btn btn-save" id="save-notes">Save Notes</button>
-      <button class="cv-btn btn-danger" id="remove-item">Remove</button>
+      <button class="cv-btn btn-primary popup-action-btn" id="toggle-watched">
+        ${item.watched ? `${IC.eyeOff}<span>Unwatch</span>` : `${IC.check}<span>Watched</span>`}
+      </button>
+      <button class="cv-btn btn-fav popup-action-btn" id="toggle-fav">
+        ${item.favorite ? `${IC.heartFill}<span>Unfav</span>` : `${IC.heart}<span>Favorite</span>`}
+      </button>
+      <button class="cv-btn btn-save popup-action-btn" id="save-notes">
+        ${IC.save}<span>Save Notes</span>
+      </button>
+      <button class="cv-btn btn-danger popup-action-btn" id="remove-item">
+        ${IC.trash}<span>Remove</span>
+      </button>
     </div>
   `;
 
@@ -142,7 +179,7 @@ export function showConfirm(title, message, onConfirm, onCancel) {
   overlay.className = "cv-overlay confirm-overlay";
   overlay.innerHTML = `
     <div class="cv-confirm glass-panel">
-      <div class="confirm-icon">⚠️</div>
+      <div class="confirm-icon" style="color:var(--amber)">${IC.warning}</div>
       <h3>${title}</h3>
       <p>${message}</p>
       <div class="confirm-actions">
@@ -172,8 +209,8 @@ export function showAddForm(onAdd) {
         <div class="form-group">
           <label>Type</label>
           <select id="fa-type" class="glass-input">
-            <option value="movie">🎬 Movie</option>
-            <option value="series">📺 Series</option>
+            <option value="movie">Movie</option>
+            <option value="series">Series</option>
           </select>
         </div>
       </div>
@@ -218,7 +255,7 @@ export function showAddForm(onAdd) {
   showPopup({
     title: "Add Manually",
     body,
-    footer: `<button class="cv-btn btn-primary" id="manual-add-submit">Add to Watchlist</button>`,
+    footer: `<button class="cv-btn btn-primary" id="manual-add-submit" style="gap:6px;">${IC.plus} Add to Watchlist</button>`,
     onMount: (overlay) => {
       overlay.querySelector("#manual-add-submit").onclick = () => {
         const title = overlay.querySelector("#fa-title").value.trim();
@@ -240,7 +277,7 @@ export function showAddForm(onAdd) {
 
 function renderStars(current, interactive) {
   return `<div class="star-rating">${[1,2,3,4,5].map(i =>
-    `<button class="star-btn ${i <= current ? "active" : ""}" data-val="${i}" ${interactive ? "" : "disabled"}>★</button>`
+    `<button class="star-btn ${i <= current ? "active" : ""}" data-val="${i}" ${interactive ? "" : "disabled"}>${IC.star}</button>`
   ).join("")}</div>`;
 }
 
@@ -259,8 +296,8 @@ export function showToast(message, type = "info", duration = 3000) {
   }
   const toast = document.createElement("div");
   toast.className = `cv-toast toast-${type}`;
-  const icons = { info: "ℹ️", success: "✅", error: "❌", warning: "⚠️" };
-  toast.innerHTML = `<span class="toast-icon">${icons[type] || "ℹ️"}</span><span>${message}</span>`;
+  const icons = { info: IC.infoCircle, success: IC.checkCircle, error: IC.xCircle, warning: IC.alertTri };
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || IC.infoCircle}</span><span>${message}</span>`;
   container.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add("show"));
   setTimeout(() => {

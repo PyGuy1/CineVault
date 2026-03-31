@@ -9,21 +9,43 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>CineVault</title>
   <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./icon.png">
+  <link rel="apple-touch-icon" href="./icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="./style.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
-    body{
+    body {
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
+    /* Lucide icon sizing helpers */
+    .nav-icon lucide-icon, .nav-icon svg { width: 18px; height: 18px; }
+    .stat-icon svg { width: 28px; height: 28px; }
+    .settings-card-icon svg { width: 32px; height: 32px; }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .theme-icon svg { width: 18px; height: 18px; }
+    .search-icon-inline svg { width: 16px; height: 16px; }
+    .search-submit svg { width: 18px; height: 18px; color: #fff; }
+    .ctx-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .confirm-icon svg { width: 48px; height: 48px; }
+    .loader-icon svg { width: 40px; height: 40px; }
+    .install-icon svg { width: 16px; height: 16px; }
+    /* Allow text selection in inputs only */
+    input, textarea, select { user-select: text; -webkit-user-select: text; }
   </style>
 </head>
 <body>
 
 <!-- APP LOADER -->
 <div id="app-loader">
-  <div class="loader-logo">🎬 CineVault</div>
+  <div class="loader-logo">
+    <span class="loader-icon" style="display:inline-flex;align-items:center;margin-right:10px;color:var(--accent);">
+      <i data-lucide="clapperboard"></i>
+    </span>CineVault
+  </div>
   <div class="loader-bar"><div class="loader-fill"></div></div>
   <p style="color:var(--text-muted);font-size:0.8rem;">Loading your watchlist…</p>
 </div>
@@ -34,37 +56,39 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-icon">🎬</div>
+      <div class="logo-icon"><i data-lucide="clapperboard"></i></div>
       <span class="logo-text">CineVault</span>
     </div>
 
     <div class="nav-section-label">Main</div>
     <nav role="navigation">
       <div class="nav-item active" data-nav="dashboard" role="button" tabindex="0">
-        <span class="nav-icon">🏠</span>
+        <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
         <span class="nav-label">Dashboard</span>
       </div>
       <div class="nav-item" data-nav="watchlist" role="button" tabindex="0">
-        <span class="nav-icon">🎞️</span>
+        <span class="nav-icon"><i data-lucide="film"></i></span>
         <span class="nav-label">My Watchlist</span>
       </div>
       <div class="nav-item" data-nav="search" role="button" tabindex="0">
-        <span class="nav-icon">🔍</span>
-        <span class="nav-label">Search & Add</span>
+        <span class="nav-icon"><i data-lucide="search"></i></span>
+        <span class="nav-label">Search &amp; Add</span>
       </div>
       <div class="nav-section-label">More</div>
       <div class="nav-item" data-nav="stats" role="button" tabindex="0">
-        <span class="nav-icon">📊</span>
+        <span class="nav-icon"><i data-lucide="bar-chart-2"></i></span>
         <span class="nav-label">Statistics</span>
       </div>
       <div class="nav-item" data-nav="tools" role="button" tabindex="0">
-        <span class="nav-icon">⚙️</span>
-        <span class="nav-label">Tools & Backup</span>
+        <span class="nav-icon"><i data-lucide="settings-2"></i></span>
+        <span class="nav-label">Tools &amp; Backup</span>
       </div>
     </nav>
 
     <div class="sidebar-bottom">
-      <button id="install-btn">📲 Install App</button>
+      <button id="install-btn" style="display:none;">
+        <span class="install-icon"><i data-lucide="download"></i></span> Install App
+      </button>
       <div class="sidebar-footer">
         Powered by <a href="#" style="pointer-events:none">PyGuy</a>
       </div>
@@ -76,14 +100,16 @@
 
     <!-- TOPBAR -->
     <header class="topbar">
-      <button class="icon-btn" id="mobile-nav-toggle" aria-label="Toggle navigation">☰</button>
+      <button class="icon-btn" id="mobile-nav-toggle" aria-label="Toggle navigation">
+        <i data-lucide="menu"></i>
+      </button>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
       <div class="topbar-actions">
-        <button class="cv-btn btn-primary" id="add-btn" style="padding:8px 16px;font-size:0.82rem;">
-          ＋ Add
+        <button class="cv-btn btn-primary" id="add-btn" style="padding:8px 16px;font-size:0.82rem;gap:6px;">
+          <i data-lucide="plus" style="width:15px;height:15px;"></i> Add
         </button>
         <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">
-          <span class="theme-icon">☀️</span>
+          <span class="theme-icon"><i data-lucide="sun"></i></span>
         </button>
       </div>
     </header>
@@ -95,40 +121,40 @@
       <section class="section active" id="section-dashboard">
         <div class="dash-header">
           <div class="dash-greeting">
-            <h1>Your Watchlist 🎬</h1>
-            <p id="dash-subtitle">Track your movies & series journey</p>
+            <h1>Your Watchlist</h1>
+            <p id="dash-subtitle">Track your movies &amp; series journey</p>
           </div>
         </div>
 
         <!-- Stats Row -->
         <div class="stats-row">
           <div class="stat-card glass-panel">
-            <div class="stat-icon">📽️</div>
+            <div class="stat-icon"><i data-lucide="library"></i></div>
             <div class="stat-value" id="stat-total">0</div>
             <div class="stat-label">Total</div>
           </div>
           <div class="stat-card glass-panel">
-            <div class="stat-icon">🎬</div>
+            <div class="stat-icon"><i data-lucide="clapperboard"></i></div>
             <div class="stat-value" id="stat-movies">0</div>
             <div class="stat-label">Movies</div>
           </div>
           <div class="stat-card glass-panel">
-            <div class="stat-icon">📺</div>
+            <div class="stat-icon"><i data-lucide="tv-2"></i></div>
             <div class="stat-value" id="stat-series">0</div>
             <div class="stat-label">Series</div>
           </div>
           <div class="stat-card glass-panel">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"><i data-lucide="check-circle-2"></i></div>
             <div class="stat-value" id="stat-watched">0</div>
             <div class="stat-label">Watched</div>
           </div>
           <div class="stat-card glass-panel">
-            <div class="stat-icon">🕐</div>
+            <div class="stat-icon"><i data-lucide="clock-4"></i></div>
             <div class="stat-value" id="stat-unwatched">0</div>
             <div class="stat-label">Unwatched</div>
           </div>
           <div class="stat-card glass-panel">
-            <div class="stat-icon">⭐</div>
+            <div class="stat-icon"><i data-lucide="star"></i></div>
             <div class="stat-value" id="stat-favorites">0</div>
             <div class="stat-label">Favorites</div>
           </div>
@@ -150,7 +176,7 @@
           <!-- Search bar -->
           <div class="dash-search-wrap">
             <div class="search-bar-wrap">
-              <span class="search-icon-inline">🔍</span>
+              <span class="search-icon-inline"><i data-lucide="search"></i></span>
               <input type="search" class="glass-search" id="dash-search" placeholder="Quick search your watchlist…">
             </div>
 
@@ -161,7 +187,7 @@
               <button class="filter-btn" data-filter="series">Series</button>
               <button class="filter-btn" data-filter="watched">Watched</button>
               <button class="filter-btn" data-filter="unwatched">Unwatched</button>
-              <button class="filter-btn" data-filter="favorites">⭐ Favorites</button>
+              <button class="filter-btn" data-filter="favorites">Favorites</button>
             </div>
 
             <!-- Mini watchlist grid -->
@@ -182,11 +208,11 @@
         <div class="watchlist-toolbar">
           <div class="filter-group">
             <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="movies">🎬 Movies</button>
-            <button class="filter-btn" data-filter="series">📺 Series</button>
-            <button class="filter-btn" data-filter="watched">✓ Watched</button>
-            <button class="filter-btn" data-filter="unwatched">○ Unwatched</button>
-            <button class="filter-btn" data-filter="favorites">⭐ Favorites</button>
+            <button class="filter-btn" data-filter="movies">Movies</button>
+            <button class="filter-btn" data-filter="series">Series</button>
+            <button class="filter-btn" data-filter="watched">Watched</button>
+            <button class="filter-btn" data-filter="unwatched">Unwatched</button>
+            <button class="filter-btn" data-filter="favorites">Favorites</button>
           </div>
           <div class="toolbar-right">
             <select class="glass-select" id="sort-select">
@@ -196,8 +222,8 @@
               <option value="year">Sort: Year</option>
             </select>
             <div class="view-toggle">
-              <button class="view-btn active" data-view="grid" title="Grid view">⊞</button>
-              <button class="view-btn" data-view="list" title="List view">☰</button>
+              <button class="view-btn active" data-view="grid" title="Grid view"><i data-lucide="layout-grid" style="width:15px;height:15px;"></i></button>
+              <button class="view-btn" data-view="list" title="List view"><i data-lucide="list" style="width:15px;height:15px;"></i></button>
             </div>
             <span class="results-info" id="results-count">0 items</span>
           </div>
@@ -217,7 +243,9 @@
           <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:20px;">Search millions of titles and add them to your watchlist</p>
           <div class="search-input-wrap">
             <input type="search" id="search-input" placeholder="Search for a movie or series…" autocomplete="off">
-            <button class="search-submit" id="search-submit-btn" aria-label="Search">🔍</button>
+            <button class="search-submit" id="search-submit-btn" aria-label="Search">
+              <i data-lucide="search"></i>
+            </button>
           </div>
           <p style="color:var(--text-muted);font-size:0.75rem;margin-top:8px;">Powered by OMDb API · or try: Dark Knight, Breaking Bad, Inception</p>
         </div>
@@ -228,24 +256,24 @@
 
       <!-- ===== STATS SECTION ===== -->
       <section class="section" id="section-stats">
-        <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px;">📊 Your Statistics</h2>
+        <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px;">Your Statistics</h2>
         <div id="stats-detail"></div>
       </section>
 
       <!-- ===== TOOLS SECTION ===== -->
       <section class="section" id="section-tools">
-        <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px;">⚙️ Tools &amp; Backup</h2>
+        <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px;">Tools &amp; Backup</h2>
 
         <div class="settings-grid">
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">📤</div>
+            <div class="settings-card-icon"><i data-lucide="upload"></i></div>
             <h3>Export Watchlist</h3>
             <p>Download your entire watchlist as a JSON backup file you can import later.</p>
             <button class="cv-btn btn-primary" id="export-btn">Export JSON</button>
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">📥</div>
+            <div class="settings-card-icon"><i data-lucide="download"></i></div>
             <h3>Import Watchlist</h3>
             <p>Restore a previously exported watchlist JSON file.</p>
             <button class="cv-btn btn-ghost" id="import-btn">Import JSON</button>
@@ -253,35 +281,35 @@
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">💾</div>
+            <div class="settings-card-icon"><i data-lucide="hard-drive"></i></div>
             <h3>Backup Now</h3>
             <p>Create a timestamped backup of your complete watchlist data.</p>
             <button class="cv-btn btn-save" id="backup-btn">Create Backup</button>
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">🎲</div>
+            <div class="settings-card-icon"><i data-lucide="shuffle"></i></div>
             <h3>Random Picker</h3>
             <p>Can't decide what to watch? Let CineVault pick an unwatched title for you!</p>
-            <button class="cv-btn btn-fav" id="random-btn">Pick Random 🎲</button>
+            <button class="cv-btn btn-fav" id="random-btn">Pick Random</button>
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">🎨</div>
+            <div class="settings-card-icon"><i data-lucide="palette"></i></div>
             <h3>Theme</h3>
             <p>Switch between dark and light mode with a smooth animated transition.</p>
             <button class="cv-btn btn-ghost" id="theme-toggle-2" onclick="document.getElementById('theme-toggle').click()">Toggle Theme</button>
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">🗑️</div>
+            <div class="settings-card-icon"><i data-lucide="trash-2"></i></div>
             <h3>Clear Watchlist</h3>
             <p>Permanently remove all items from your watchlist. This cannot be undone.</p>
             <button class="cv-btn btn-danger" id="clear-all-btn">Clear All</button>
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">⌨️</div>
+            <div class="settings-card-icon"><i data-lucide="keyboard"></i></div>
             <h3>Keyboard Shortcuts</h3>
             <p>Press <kbd>?</kbd> anywhere to see available keyboard shortcuts for power users.</p>
             <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
@@ -290,7 +318,7 @@
           </div>
 
           <div class="settings-card glass-panel">
-            <div class="settings-card-icon">📲</div>
+            <div class="settings-card-icon"><i data-lucide="smartphone"></i></div>
             <h3>Install App</h3>
             <p>Install CineVault as a PWA on your device for offline access and app-like experience.</p>
             <button class="cv-btn btn-primary" id="install-btn-2" style="display:none" onclick="document.getElementById('install-btn').click()">Install</button>
@@ -312,36 +340,48 @@
 <!-- CONTEXT MENU -->
 <div class="context-menu glass-panel" id="context-menu">
   <div class="ctx-header" id="ctx-title">Item</div>
-  <button class="ctx-item" id="ctx-watch">✓ Mark as Watched</button>
-  <button class="ctx-item" id="ctx-fav">⭐ Toggle Favorite</button>
-  <button class="ctx-item ctx-danger" id="ctx-remove">🗑️ Remove</button>
+  <button class="ctx-item" id="ctx-watch"><i data-lucide="check-circle-2"></i> Mark as Watched</button>
+  <button class="ctx-item" id="ctx-fav"><i data-lucide="star"></i> Toggle Favorite</button>
+  <button class="ctx-item ctx-danger" id="ctx-remove"><i data-lucide="trash-2"></i> Remove</button>
 </div>
 
 <script type="module" src="./app.js"></script>
 <script>
-  // Patch watchlist section to use its own grid
+  // Initialise Lucide icons (runs after DOM + module load)
+  function initIcons() {
+    if (window.lucide) lucide.createIcons();
+  }
   document.addEventListener("DOMContentLoaded", () => {
+    initIcons();
     // Section navigation also update topbar title
     const titles = { dashboard: "Dashboard", watchlist: "My Watchlist", search: "Search & Add", stats: "Statistics", tools: "Tools & Backup" };
     document.querySelectorAll("[data-nav]").forEach(el => {
       el.addEventListener("click", () => {
         const t = document.getElementById("topbar-title");
         if (t) t.textContent = titles[el.dataset.nav] || "CineVault";
+        // Re-render icons after section switch (dynamic content)
+        setTimeout(initIcons, 50);
       });
     });
   });
 
-  // Redirect watchlist section to use its own grid
-  // (app.js will detect the section and use the appropriate container)
   window.addEventListener("load", () => {
+    initIcons();
     // PWA install button visibility
+    const installBtn = document.getElementById("install-btn");
     const installBtn2 = document.getElementById("install-btn-2");
     const pwaNote = document.getElementById("pwa-note");
     window.addEventListener("beforeinstallprompt", () => {
+      if (installBtn) installBtn.style.display = "flex";
       if (installBtn2) installBtn2.style.display = "flex";
       if (pwaNote) pwaNote.style.display = "none";
     });
   });
+
+  // Expose initIcons globally so JS modules can call it after rendering cards
+  window.cvInitIcons = function() {
+    if (window.lucide) lucide.createIcons();
+  };
 </script>
 </body>
 </html>
