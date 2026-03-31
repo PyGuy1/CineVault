@@ -1,5 +1,5 @@
 // CineVault - Service Worker
-const CACHE_NAME = "cinevault-v1.0.1";
+const CACHE_NAME = "cinevault-v1.0.2";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
