@@ -95,12 +95,6 @@ export function showDetailPopup(item, callbacks) {
         <p class="popup-desc">${item.description || "No description available."}</p>
         ${item.director ? `<p class="popup-meta-line"><strong>Director:</strong> ${item.director}</p>` : ""}
         ${item.actors ? `<p class="popup-meta-line"><strong>Cast:</strong> ${item.actors}</p>` : ""}
-        ${item.type === "series" && item.totalSeasons ? `
-          <div class="series-progress-wrap">
-            <label>Episodes watched: <strong id="ep-count">${item.episodesWatched || 0}</strong></label>
-            <input type="range" id="ep-slider" min="0" max="${item.totalSeasons * 10}" value="${item.episodesWatched || 0}" class="ep-slider">
-          </div>
-        ` : ""}
         <div class="notes-wrap">
           <label for="item-notes">${IC.notepad} Notes</label>
           <textarea id="item-notes" class="glass-input" placeholder="Add your notes here..." rows="3">${item.notes || ""}</textarea>
