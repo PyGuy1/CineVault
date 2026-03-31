@@ -201,4 +201,3 @@ function _cache(key, val) {
   searchCache.set(key, val);
   if (searchCache.size > 60) searchCache.delete(searchCache.keys().next().value);
 }
-
