@@ -113,18 +113,35 @@ function setupEventListeners() {
   // Category filter
   setupCategoryFilter();
 
-  // Mobile nav toggle
+  // Mobile nav toggle — uses a backdrop element for clean click-outside
   const sidebar = document.querySelector(".sidebar");
+
+  // Create backdrop element once
+  const backdrop = document.createElement("div");
+  backdrop.className = "sidebar-backdrop";
+  document.body.appendChild(backdrop);
+
+  function openSidebar() {
+    sidebar?.classList.add("open");
+    backdrop.classList.add("visible");
+  }
+
+  function closeSidebar() {
+    sidebar?.classList.remove("open");
+    backdrop.classList.remove("visible");
+  }
+
   document.getElementById("mobile-nav-toggle")?.addEventListener("click", (e) => {
     e.stopPropagation();
-    sidebar?.classList.toggle("open");
+    sidebar?.classList.contains("open") ? closeSidebar() : openSidebar();
   });
 
-  // Click outside sidebar closes it on mobile
-  document.addEventListener("click", (e) => {
-    if (sidebar?.classList.contains("open") && !sidebar.contains(e.target)) {
-      sidebar.classList.remove("open");
-    }
+  // Clicking the backdrop (outside sidebar) closes it
+  backdrop.addEventListener("click", closeSidebar);
+
+  // Nav items close sidebar on mobile
+  document.querySelectorAll("[data-nav]").forEach(el => {
+    el.addEventListener("click", () => { if (window.innerWidth <= 768) closeSidebar(); });
   });
 
   // Install PWA
@@ -222,12 +239,12 @@ function updateDashboard() {
     const recent = [...allItems].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)).slice(0, 5);
     recentEl.innerHTML = recent.length ? recent.map(item => `
       <div class="recent-item glass-panel">
-        <div class="recent-poster">${item.poster ? `<img src="${item.poster}" loading="lazy">` : "🎬"}</div>
+        <div class="recent-poster">${item.poster ? `<img src="${item.poster}" loading="lazy">` : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>'}</div>
         <div class="recent-info">
           <span class="recent-name">${item.name}</span>
           <span class="recent-meta">${item.type} · ${item.year || "N/A"}</span>
         </div>
-        <span class="badge badge-${item.watched ? "watched" : "unwatched"}">${item.watched ? "✓" : "○"}</span>
+        <span class="badge badge-${item.watched ? "watched" : "unwatched"}">${item.watched ? `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>`}</span>
       </div>
     `).join("") : "<p class='empty-recent'>No items yet</p>";
   }
@@ -344,7 +361,7 @@ function exportWatchlist() {
   const a = document.createElement("a");
   a.href = url; a.download = `cinevault-backup-${Date.now()}.json`;
   a.click(); URL.revokeObjectURL(url);
-  showToast("Watchlist exported ✓", "success");
+  showToast("Watchlist exported", "success");
 }
 
 async function importWatchlist(e) {
@@ -359,7 +376,7 @@ async function importWatchlist(e) {
     allItems = await getAllItems();
     applyFiltersAndRender();
     updateDashboard();
-    showToast(`Imported ${items.length} items ✓`, "success");
+    showToast(`Imported ${items.length} items`, "success");
   } catch {
     showToast("Invalid file format", "error");
   }
@@ -466,7 +483,7 @@ function setupKeyboardShortcuts() {
 function showShortcutsHelp() {
   import("./popup.js").then(({ showPopup }) => {
     showPopup({
-      title: "⌨️ Keyboard Shortcuts",
+      title: "Keyboard Shortcuts",
       body: `
         <div class="shortcuts-grid">
           ${[["D","Dashboard"],["W","Watchlist"],["S","Search"],["T","Statistics"],["A","Add item"],["R","Random picker"],["E","Export"],["?","Show shortcuts"]].map(([k,v])=>
