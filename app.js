@@ -114,8 +114,17 @@ function setupEventListeners() {
   setupCategoryFilter();
 
   // Mobile nav toggle
-  document.getElementById("mobile-nav-toggle")?.addEventListener("click", () => {
-    document.querySelector(".sidebar")?.classList.toggle("open");
+  const sidebar = document.querySelector(".sidebar");
+  document.getElementById("mobile-nav-toggle")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sidebar?.classList.toggle("open");
+  });
+
+  // Click outside sidebar closes it on mobile
+  document.addEventListener("click", (e) => {
+    if (sidebar?.classList.contains("open") && !sidebar.contains(e.target)) {
+      sidebar.classList.remove("open");
+    }
   });
 
   // Install PWA
@@ -298,7 +307,7 @@ async function handleSearchAdd(result) {
   };
   await addItem(item);
   allItems.push(item);
-  showToast(`"${item.name}" added to watchlist 🎬`, "success");
+  showToast(`"${item.name}" added to watchlist`, "success");
   // Refresh search to show as added
   performSearch();
 }
@@ -325,7 +334,7 @@ async function handleManualAdd(data) {
   allItems.push(item);
   applyFiltersAndRender();
   updateDashboard();
-  showToast(`"${item.name}" added to watchlist 🎬`, "success");
+  showToast(`"${item.name}" added to watchlist`, "success");
 }
 
 function exportWatchlist() {
@@ -365,7 +374,7 @@ function randomPicker() {
   const unwatched = allItems.filter(i => !i.watched);
   if (!unwatched.length) { showToast("No unwatched items to pick from!", "warning"); return; }
   const pick = unwatched[Math.floor(Math.random() * unwatched.length)];
-  showToast(`🎲 Tonight watch: "${pick.name}"`, "info", 5000);
+  showToast(`Tonight watch: "${pick.name}"`, "info", 5000);
 }
 
 function setupContextMenu() {
@@ -373,6 +382,9 @@ function setupContextMenu() {
   if (!menu) return;
 
   let ctxItem = null;
+  // Track whether a context menu is currently open – used to swallow the
+  // next document click that would otherwise immediately re-fire an action.
+  let menuJustOpened = false;
 
   document.addEventListener("contextmenu", (e) => {
     const card = e.target.closest(".cv-card");
@@ -380,15 +392,31 @@ function setupContextMenu() {
     e.preventDefault();
     ctxItem = filteredItems.find(i => i.id === card.dataset.id);
     if (!ctxItem) return;
-    menu.style.cssText = `display:block;left:${Math.min(e.clientX, window.innerWidth - 180)}px;top:${Math.min(e.clientY, window.innerHeight - 200)}px`;
+    menu.style.cssText = `display:block;left:${Math.min(e.clientX, window.innerWidth - 200)}px;top:${Math.min(e.clientY, window.innerHeight - 160)}px`;
     document.getElementById("ctx-title").textContent = ctxItem.name;
-    document.getElementById("ctx-watch").textContent = ctxItem.watched ? "Mark Unwatched" : "Mark Watched";
-    document.getElementById("ctx-fav").textContent = ctxItem.favorite ? "Remove Favorite" : "Add Favorite";
+    // Update label text only (keep Lucide icon nodes intact)
+    const watchBtn = document.getElementById("ctx-watch");
+    const favBtn   = document.getElementById("ctx-fav");
+    if (watchBtn) watchBtn.lastChild.textContent = " " + (ctxItem.watched ? "Mark Unwatched" : "Mark Watched");
+    if (favBtn)   favBtn.lastChild.textContent   = " " + (ctxItem.favorite ? "Remove Favorite" : "Add Favorite");
+    menuJustOpened = true;
   });
 
-  document.addEventListener("click", () => { menu.style.display = "none"; });
+  // Close on any outside click — but swallow the very first click after
+  // opening so it doesn't immediately trigger a card action underneath
+  document.addEventListener("click", (e) => {
+    if (menuJustOpened) { menuJustOpened = false; return; }
+    if (!menu.contains(e.target)) menu.style.display = "none";
+  });
 
-  document.getElementById("ctx-watch")?.addEventListener("click", async () => {
+  // Also close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") menu.style.display = "none";
+  });
+
+  document.getElementById("ctx-watch")?.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    menu.style.display = "none";
     if (!ctxItem) return;
     ctxItem.watched = !ctxItem.watched;
     await updateItem(ctxItem);
@@ -396,7 +424,9 @@ function setupContextMenu() {
     showToast(ctxItem.watched ? "Marked as watched" : "Marked as unwatched", "success");
   });
 
-  document.getElementById("ctx-fav")?.addEventListener("click", async () => {
+  document.getElementById("ctx-fav")?.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    menu.style.display = "none";
     if (!ctxItem) return;
     ctxItem.favorite = !ctxItem.favorite;
     await updateItem(ctxItem);
@@ -404,7 +434,9 @@ function setupContextMenu() {
     showToast(ctxItem.favorite ? "Added to favorites" : "Removed from favorites", "info");
   });
 
-  document.getElementById("ctx-remove")?.addEventListener("click", () => {
+  document.getElementById("ctx-remove")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menu.style.display = "none";
     if (!ctxItem) return;
     showConfirm("Remove item?", `Remove "${ctxItem.name}" from watchlist?`, async () => {
       await deleteItem(ctxItem.id);
