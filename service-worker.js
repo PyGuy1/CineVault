@@ -11,6 +11,8 @@ const STATIC_ASSETS = [
   "./search.js",
   "./popup.js",
   "./icon.png",
+  "./icon-512.png",
+  "./icon-192.png",
   "./manifest.json",
 ];
 
