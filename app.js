@@ -398,9 +398,18 @@ function setupContextMenu() {
   const menu = document.getElementById("context-menu");
   if (!menu) return;
 
+  // ── KEY FIX ──────────────────────────────────────────────────────────────
+  // Move the menu element directly onto <body> so it is completely outside
+  // .app-wrapper and every glass-panel that uses backdrop-filter / transform.
+  // Those CSS properties create new stacking contexts, which means any
+  // z-index set on a child element is scoped to that context and cannot
+  // beat elements outside it — no matter how large the number.
+  // Appending to body puts the menu in the root stacking context, where
+  // --z-context-menu:5000 is unambiguously the top visible layer.
+  document.body.appendChild(menu);
+  // ─────────────────────────────────────────────────────────────────────────
+
   let ctxItem = null;
-  // Track whether a context menu is currently open – used to swallow the
-  // next document click that would otherwise immediately re-fire an action.
   let menuJustOpened = false;
 
   document.addEventListener("contextmenu", (e) => {
