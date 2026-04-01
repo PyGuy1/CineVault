@@ -43,8 +43,8 @@
   /* Z-index layer system — all top-layer UI uses these, never hardcoded values */
   --z-content:          1;
   --z-topbar:          50;
+  --z-sidebar-backdrop:80;   /* BELOW sidebar — dims content without covering the menu */
   --z-sidebar:        100;
-  --z-sidebar-backdrop:200;
   --z-overlay:       1000;
   --z-modal:         1100;
   --z-context-menu:  5000;
@@ -1475,24 +1475,22 @@ kbd {
 
   .sidebar.open { transform: translateX(0); }
 
-  /* Backdrop overlay — shown when sidebar is open */
+  /* Backdrop — dims the CONTENT area only when sidebar is open.
+     Must be BELOW sidebar (z:100) so the sidebar stays fully interactive.
+     No backdrop-filter here — that creates a stacking context which can
+     trap elements and cause its own z-index scoping problems. */
   .sidebar-backdrop {
     display: none;
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    z-index: var(--z-sidebar-backdrop);   /* above sidebar (100), far below context menu (5000) */
-    animation: backdropIn 0.25s ease both;
+    top: 0;
+    left: var(--sidebar-width);  /* starts after the sidebar, never covers it */
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: var(--z-sidebar-backdrop);
+    transition: opacity 0.3s ease;
   }
 
-  @keyframes backdropIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-
-  .sidebar.open ~ * .sidebar-backdrop,
   .sidebar-backdrop.visible { display: block; }
 
   .main-content { margin-left: 0; }
