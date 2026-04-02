@@ -12,8 +12,18 @@ let activeFilter = "all";
 let sortBy = "dateAdded";
 let searchResults = [];
 let searchPage = 1;
-let isSearching = false;
 let activeSection = "dashboard";
+
+// Per-request cancellation — each new search cancels the previous in-flight one.
+// This replaces the old boolean `isSearching` flag which dropped queries silently.
+let _searchAbort = null;
+
+// Sidebar state — managed at module scope so navigateTo() can close it too
+let _sidebarBackdrop = null;
+function _closeSidebar() {
+  document.querySelector(".sidebar")?.classList.remove("open");
+  _sidebarBackdrop?.classList.remove("visible");
+}
 
 const CATEGORIES = ["All", "Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Romance", "Thriller", "Animation", "Documentary", "General"];
 
@@ -80,11 +90,16 @@ function setupEventListeners() {
   // Add button
   document.getElementById("add-btn").onclick = () => showAddForm(handleManualAdd);
 
-  // Search page
+  // Search page input
   const searchInput = document.getElementById("search-input");
   if (searchInput) {
-    searchInput.addEventListener("input", debounce(() => { searchPage = 1; performSearch(); }, 500));
-    searchInput.addEventListener("keydown", e => { if (e.key === "Enter") { searchPage = 1; performSearch(); } });
+    searchInput.addEventListener("input", debounce(() => {
+      searchPage = 1;   // reset to page 1 whenever the query changes
+      performSearch();
+    }, 350));           // 350ms feels responsive without hammering the API
+    searchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") { searchPage = 1; performSearch(); }
+    });
   }
 
   // Export / Import
@@ -113,35 +128,30 @@ function setupEventListeners() {
   // Category filter
   setupCategoryFilter();
 
-  // Mobile nav toggle — uses a backdrop element for clean click-outside
+  // Mobile nav toggle — backdrop element for clean click-outside close
   const sidebar = document.querySelector(".sidebar");
 
-  // Create backdrop element once
-  const backdrop = document.createElement("div");
-  backdrop.className = "sidebar-backdrop";
-  document.body.appendChild(backdrop);
+  // Create backdrop element once, store reference at module scope
+  _sidebarBackdrop = document.createElement("div");
+  _sidebarBackdrop.className = "sidebar-backdrop";
+  document.body.appendChild(_sidebarBackdrop);
 
-  function openSidebar() {
+  function _openSidebar() {
     sidebar?.classList.add("open");
-    backdrop.classList.add("visible");
-  }
-
-  function closeSidebar() {
-    sidebar?.classList.remove("open");
-    backdrop.classList.remove("visible");
+    _sidebarBackdrop.classList.add("visible");
   }
 
   document.getElementById("mobile-nav-toggle")?.addEventListener("click", (e) => {
     e.stopPropagation();
-    sidebar?.classList.contains("open") ? closeSidebar() : openSidebar();
+    sidebar?.classList.contains("open") ? _closeSidebar() : _openSidebar();
   });
 
-  // Clicking the backdrop (outside sidebar) closes it
-  backdrop.addEventListener("click", closeSidebar);
+  // Clicking the backdrop closes the sidebar
+  _sidebarBackdrop.addEventListener("click", _closeSidebar);
 
   // Nav items close sidebar on mobile
   document.querySelectorAll("[data-nav]").forEach(el => {
-    el.addEventListener("click", () => { if (window.innerWidth <= 768) closeSidebar(); });
+    el.addEventListener("click", () => { if (window.innerWidth <= 768) _closeSidebar(); });
   });
 
   // Install PWA
@@ -257,44 +267,64 @@ function navigateTo(section) {
   const target = document.getElementById(`section-${section}`);
   if (target) target.classList.add("active");
   document.querySelector(`[data-nav="${section}"]`)?.classList.add("active");
-  document.querySelector(".sidebar")?.classList.remove("open");
+  _closeSidebar();   // always close sidebar + remove backdrop on any navigation
 
   if (section === "dashboard") { updateDashboard(); applyFiltersAndRender(); }
   if (section === "watchlist") applyFiltersAndRender();
   if (section === "stats") renderStats(allItems);
+  // Cancel any in-flight search when leaving the search page
+  if (section !== "search" && _searchAbort) { _searchAbort.abort(); _searchAbort = null; }
 }
 
 async function performSearch() {
   const input = document.getElementById("search-input");
   if (!input) return;
   const query = input.value.trim();
-  if (!query) { document.getElementById("search-results").innerHTML = ""; return; }
-
-  if (isSearching) return;
-  isSearching = true;
 
   const resultsContainer = document.getElementById("search-results");
+  if (!query) { resultsContainer.innerHTML = ""; return; }
+
+  // Cancel any previous in-flight search immediately
+  if (_searchAbort) { _searchAbort.abort(); }
+  _searchAbort = new AbortController();
+  const signal = _searchAbort.signal;
+
   resultsContainer.innerHTML = `<div class="search-loading"><div class="spinner"></div><p>Searching...</p></div>`;
 
   try {
-    const { results, total, demo } = await searchMedia(query, searchPage);
+    const payload = await searchMedia(query, searchPage, signal);
+
+    // Cancelled by a newer search — discard silently
+    if (signal.aborted) return;
+
+    const { results, total, _source } = payload;
     searchResults = results;
+
+    if (_source === "demo") {
+      // Only show demo toast when we fell back due to a real API failure
+      showToast("Network unavailable — showing offline results", "warning");
+    }
+
     const existingIds = new Set(allItems.map(i => i.sourceId || i.id));
     renderSearchResults(results, resultsContainer, handleSearchAdd, existingIds);
-    if (demo) showToast("Showing demo results (API limit reached)", "info");
 
     // Pagination
     const pageInfo = document.getElementById("search-pagination");
-    if (pageInfo) pageInfo.innerHTML = total > 8
-      ? `<span>${results.length} of ${total}</span><button class="cv-btn btn-ghost" id="load-more">Load More</button>`
-      : "";
-    document.getElementById("load-more")?.addEventListener("click", () => {
-      searchPage++; isSearching = false; performSearch();
-    });
-  } catch (e) {
-    resultsContainer.innerHTML = `<div class="search-error">Search failed. Please try again.</div>`;
+    if (pageInfo) {
+      pageInfo.innerHTML = total > results.length
+        ? `<span>${results.length} of ${total}</span><button class="cv-btn btn-ghost" id="load-more">Load More</button>`
+        : "";
+      document.getElementById("load-more")?.addEventListener("click", () => {
+        searchPage++;
+        performSearch();
+      });
+    }
+  } catch (err) {
+    if (err && err.name === "AbortError") return;
+    if (!signal.aborted) {
+      resultsContainer.innerHTML = `<div class="search-error"><p>Search failed. Check your connection and try again.</p></div>`;
+    }
   }
-  isSearching = false;
 }
 
 async function handleSearchAdd(result) {

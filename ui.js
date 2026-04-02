@@ -80,13 +80,14 @@ function createCard(item, index, onItemsChange) {
   card.dataset.id = item.id;
   card.draggable = true;
 
-  const posterStyle = item.poster
-    ? `background-image: url('${item.poster}'); background-size: cover; background-position: center;`
-    : "";
-
   card.innerHTML = `
-    <div class="card-poster" style="${posterStyle}">
-      ${!item.poster ? `<div class="card-poster-fallback" style="color:var(--text-muted);opacity:0.4;">${UI_IC.film}</div>` : ""}
+    <div class="card-poster">
+      ${item.poster
+        ? `<img src="${item.poster}" alt="${escapeHtml(item.name)}" class="card-poster-img" loading="lazy"
+             referrerpolicy="no-referrer" crossorigin="anonymous"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ""}
+      <div class="card-poster-fallback" style="color:var(--text-muted);opacity:0.4;${item.poster ? "display:none;" : ""}">${UI_IC.film}</div>
       <div class="card-overlay">
         <span class="card-type-badge badge-${item.type}">${item.type}</span>
         ${item.favorite ? `<span class="card-fav-badge">${UI_IC.heartFill}</span>` : ""}
@@ -214,9 +215,12 @@ export function renderSearchResults(results, container, onAdd, existingIds) {
     card.innerHTML = `
       <div class="sr-poster">
         ${result.Poster && result.Poster !== "N/A"
-          ? `<img src="${result.Poster}" alt="${escapeHtml(result.Title)}" loading="lazy" onerror="this.style.display='none'">`
-          : `<div class="sr-poster-fallback" style="color:var(--text-muted);opacity:0.5;">${UI_IC.filmSm}</div>`
+          ? `<img src="${result.Poster}" alt="${escapeHtml(result.Title)}" loading="lazy"
+               referrerpolicy="no-referrer" crossorigin="anonymous"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ""
         }
+        <div class="sr-poster-fallback" style="color:var(--text-muted);opacity:0.5;${result.Poster && result.Poster !== "N/A" ? "display:none;" : ""}">${UI_IC.filmSm}</div>
       </div>
       <div class="sr-info">
         <div class="sr-header">
